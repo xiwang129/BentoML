@@ -11,9 +11,7 @@ from bentoml.frameworks.fastai import FastaiModelArtifact
 class FastaiClassifier(bentoml.BentoService):
     @bentoml.api(input=FileInput(),batch=True)
     def predict(self,files):
-        dl = self.artifacts.dls(files)
-        result = self.artifacts.learner.predict(dl=dl)
-        preds = np.asarray([val[0] for val in result])
-        return preds
+        result = self.artifacts.learner.predict(files)[0]      
+        return result
 
 

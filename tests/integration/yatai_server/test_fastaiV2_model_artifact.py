@@ -41,7 +41,7 @@ def fastai_svc_loaded(fastai_svc_saved_dir):
     
 def test_fastai_artifact(fastai_svc_loaded):
     result = fastai_svc_loaded.predict(test_data)
-    assert result == 7
+    assert result == str(7)
 
 @pytest.fixture()
 def fastai_image(fastai_svc_saved_dir):
@@ -63,6 +63,7 @@ def _wait_until_ready(_host, timeout, check_interval=0.5):
         try:
             if(
                 urllib.request.urlopen(f'http://{_host}/healthz', timeout=0.1).status == 200
+                
             ):
                 break
         except Exception:
@@ -98,16 +99,27 @@ def fastai_docker_host(fastai_image):
 
 def test_api_server_with_docker(fastai_docker_host):
     import requests
+    from PIL import Image
+    import urllib.request
+    from io import BytesIO
 
-    response = requests.post(
-        f"http://{fastai_docker_host}/predict",
-        headers={"Content-Type":"application/json"},
-        data = test_data.to_json(),
-    )
+    image = open(test_data,'rb').read()
+    imageStream = io.BytesIO(image)
 
-    preds = response.json
-    assert response.status_code == 200
-    assert preds[0] == 7
+    assert urllib.request.urlopen(f'http://{fastai_docker_host}/healthz', timeout = 0.1).status == 200
+
+    
+    # response = requests.post(
+    #     f"http://{fastai_docker_host}/predict",
+    #     headers={"Content-Type":'image/png'},
+    #     # headers={"Content-Type":'multipart/form-data'},
+    #     data = imageStream,
+    #     # files = {'media':imageStream},
+    # )
+
+    # preds = response.text
+    # assert response.status_code == 200
+    # assert preds[0] == str(7)
 
 
 
